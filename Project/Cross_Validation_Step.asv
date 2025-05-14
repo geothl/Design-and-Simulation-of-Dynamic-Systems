@@ -1,0 +1,33 @@
+function [l2,am,bm]=Cross_Validation_Step(Training_Data,Test_Data,M,k,thm,Gamma,lamda,N,tspan)
+
+
+for h=1:1:M
+for i=1:1:N-1
+    i
+A=Training_Data(1,i);   
+omega=Training_Data(2,i);
+[t,indentifiers] = Model_Simulation(A,k,thm,Gamma,lamda,omega,tspan);
+a_arr(i)=indentifiers(end,3);
+b_arr(i)=indentifiers(end,4);
+end
+end
+am=mean(a_arr);
+bm=mean(b_arr);
+
+A=Test_Data(1);   
+omega=Test_Data(2);
+
+xd=@(m) A*cos(omega*m);
+x0=0;
+rho_0=2*abs(x0-xd(0))+1;
+rho_inf=0.05;
+
+opts = odeset('RelTol',1e-8,'AbsTol',1e-10);%better ode simulation
+[t,indentifiers] = ode45(@(t,dyn) Model_Test(dyn,am,bm,k,xd(t),(rho_0-rho_inf)*exp(-lamda*t)+rho_inf) ,tspan,[x0 x0],opts);
+x=indentifiers(:,1);
+xm=indentifiers(:,2);
+em=x-xm;
+l2=L2_norm_calculator(em,t);
+
+
+end

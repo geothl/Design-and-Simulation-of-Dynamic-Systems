@@ -1,0 +1,10 @@
+function [t,indentifiers] = Model_Simulation(A,k,thm,Gamma,lamda,omega,tspan,B,C,D)
+a=0.75;
+b=1.25;
+x0=0;
+xd=@(m) A*cos(omega*m)*exp(-D*m)+B+C*exp(-(m-2)^2/2);
+rho_0=2*abs(x0-xd(0))+1;
+rho_inf=0.05;
+opts = odeset('RelTol',1e-8,'AbsTol',1e-10);%better ode simulation
+[t,indentifiers] = ode45(@(t,dyn)  Lyapunov_Projection(dyn,a,b,thm,k,(rho_0-rho_inf)*exp(-lamda*t)+rho_inf,Gamma,xd(t)),tspan,[x0 x0 0.4 1],opts);
+end

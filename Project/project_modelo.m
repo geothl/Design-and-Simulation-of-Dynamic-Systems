@@ -1,0 +1,57 @@
+clear;
+tspan=0:0.01:20;
+A=4;
+k=10;
+lamda=2;
+thm=3;
+Gamma=4*eye(2);
+omega=10;
+x0=0;
+%%%Διαγράμματα για βηματική xd
+plot_Thema_2(tspan,A,0,k,lamda,thm,Gamma)
+%%%Διαγράμματα για ημιτονοείδης xd
+plot_Thema_2(tspan,A,omega,k,lamda,thm,Gamma)
+
+
+
+t=0;
+
+%Εγκάρσια αξιολόγηση
+A_Data=[1 2 3 3 2 6 7 8 3 2 ];
+Omega_Data=[1 0 2 2 3 0 5 3 0 1];
+B_Data=[3 2 1 0 1 0 4 5 0 6];
+C_Data=[1 5 0 2 3 1 0 3 2 8];
+D_Data=[0 1 0 2 0 2 0 0 1 0];
+% A_Data=[1 2 3 3 2 6 7 8 3 2 ];
+% Omega_Data=[1 2 2 2 3 3 5 3 4 1];
+% B_Data=zeros(1,10);
+% C_Data=zeros(1,10);
+% D_Data=zeros(1,10);
+Data=[A_Data;Omega_Data;B_Data;C_Data;D_Data];
+
+N=length(Data);
+M=N;
+elemnts_per_section=N/M;
+index=1;
+for i=1:elemnts_per_section:N
+    
+Training_Data=Data;
+Training_Data(:,i:(i+elemnts_per_section-1))=[];
+Test_Data=Data(:,i:(i+elemnts_per_section-1));
+[l2,am,bm]=Cross_Validation_Step(Training_Data,Test_Data,M,k,thm,Gamma,lamda,N,tspan);
+l2_arr(index)=l2;
+am_arr(index)=am;
+bm_arr(index)=bm;
+index=index+1;
+end
+min_l2=min(l2_arr);
+index=find(l2_arr==min_l2);
+am=am_arr(index);
+bm=bm_arr(index);
+% xd=@(m) 1*cos(1*m)*exp(-0.5*m)+1+0.5*exp(-(m-2)^2/2);
+% x0=0;
+% rho_0=2*abs(x0-xd(0))+1;
+% rho_inf=0.05;
+% opts = odeset('RelTol',1e-8,'AbsTol',1e-10);%better ode simulation
+% [t,indentifiers] = ode45(@(t,dyn) Model_Test(dyn,am,bm,k,xd,rho),tspan,[x0 x0],opts);
+% 
